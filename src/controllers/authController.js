@@ -8,7 +8,12 @@ const login = async (req, res) => {
         if (!user) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
-        
+        res.cookie('token', 'your_jwt_token_here', {
+            httpOnly: true, // Prevents frontend JavaScript from stealing the cookie (security)
+            secure: process.env.NODE_ENV === 'production', // Use true in production (HTTPS), false for local dev (HTTP)
+            sameSite: 'lax', // Helps protect against CSRF attacks
+            maxAge: 24 * 60 * 60 * 1000 // 1 day
+        });
         // Return user data (In production, generate a JWT token here)
         res.status(200).json({
             requiresOtp: user.role === 'student' && !user.firstLoginDone,

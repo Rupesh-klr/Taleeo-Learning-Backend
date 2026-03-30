@@ -1,0 +1,44 @@
+[
+  {
+    "id": "admin1",
+    "name": "Admin",
+    "email": "taleeolearnings@gmail.com",
+    "password": "admin123",
+    "role": "admin",
+    "phone": "9000000000",
+    "firstLogin": false,
+    "avatar": "A"
+  },
+  {
+    "id": "student",
+    "name": "student-test",
+    "email": "test.student@gmail.com",
+    "password": "admin123",
+    "role": "student",
+    "phone": "9000000000",
+    "firstLogin": false,
+    "avatar": "A"
+  },
+  {
+    "id": "s1774871117096",
+    "name": "Rupesh klr",
+    "email": "krishnaleena222@gmail.com",
+    "password": "rupesh@628",
+    "role": "student",
+    "phone": "917075608796",
+    "firstLogin": false,
+    "avatar": "R",
+    "batchId": "b1"
+  },
+  {
+    "id": "s1774871318768",
+    "name": "Rupesh test-2",
+    "email": "krishnaleena22@gmail.com",
+    "password": "rupesh@899",
+    "role": "student",
+    "phone": "7075608796",
+    "firstLogin": false,
+    "avatar": "R",
+    "batchId": "b2"
+  }
+]

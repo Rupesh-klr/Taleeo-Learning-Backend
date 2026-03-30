@@ -1,0 +1,12 @@
+[
+  {
+    "id": "admin1",
+    "name": "Admin",
+    "email": "taleeolearnings@gmail.com",
+    "password": "admin123",
+    "role": "admin",
+    "phone": "9000000000",
+    "firstLogin": false,
+    "avatar": "A"
+  }
+]

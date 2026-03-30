@@ -1,0 +1,101 @@
+[
+  {
+    "id": "r1",
+    "title": "Day 1 – Foundations of BA & SDLC Overview",
+    "date": "2026-04-05",
+    "duration": "2h 10m",
+    "url": "#",
+    "batch": "b1",
+    "topics": "Role of BA, SDLC Phases, Business Domains"
+  },
+  {
+    "id": "r2",
+    "title": "Day 2 – Requirements Gathering Techniques",
+    "date": "2026-04-06",
+    "duration": "1h 55m",
+    "url": "#",
+    "batch": "b1",
+    "topics": "BRD, FRD, User Stories, RTM"
+  },
+  {
+    "id": "r4",
+    "title": "Day 2 – Requirements Gathering Techniques-sample",
+    "date": "2026-04-06",
+    "duration": "1h 55m",
+    "url": "#",
+    "batch": "b1",
+    "topics": "BRD, FRD, User Stories, RTM"
+  },
+  {
+    "id": "r3",
+    "title": "Day 1 – BA Foundations",
+    "date": "2026-04-07",
+    "duration": "2h 05m",
+    "url": "#",
+    "batch": "b2",
+    "topics": "Role of BA, Stakeholder Management"
+  },
+  {
+    "id": "r1774869464781",
+    "title": "recording-sample-testing-purpose",
+    "date": "2026-03-31",
+    "duration": "2hr",
+    "url": "url",
+    "batch": "all",
+    "topics": "html"
+  },
+  {
+    "id": "r1774869525061",
+    "title": "recording-testing-only",
+    "date": "2026-03-29",
+    "duration": "4hr",
+    "url": "url",
+    "batch": "all",
+    "topics": "html"
+  },
+  {
+    "id": "r1774869593494",
+    "title": "dd",
+    "date": "2026-03-23",
+    "duration": "45",
+    "url": "url",
+    "batch": "all",
+    "topics": "html"
+  },
+  {
+    "id": "r1774869806128",
+    "title": "testing-22",
+    "date": "2026-03-06",
+    "duration": "4",
+    "url": "url",
+    "batch": "all",
+    "topics": "HTML"
+  },
+  {
+    "id": "r1774869929329",
+    "title": "testing-bug",
+    "date": "2026-03-13",
+    "duration": "1",
+    "url": "url",
+    "batch": "all",
+    "topics": "html"
+  },
+  {
+    "id": "r1774870002798",
+    "title": "test",
+    "date": "2026-03-07",
+    "duration": "1hr",
+    "url": "url",
+    "batch": "b2",
+    "topics": "re"
+  },
+  {
+    "id": "r1774871400250",
+    "title": "raju",
+    "date": "2026-03-07",
+    "duration": "1hr",
+    "url": "url",
+    "batch": "all",
+    "topics": "html"
+  }
+]

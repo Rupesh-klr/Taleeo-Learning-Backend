@@ -1,0 +1,54 @@
+[
+  {
+    "id": "b1",
+    "name": "Weekend Batch – April 2026-html",
+    "type": "weekend",
+    "start": "2026-04-05",
+    "end": "2026-05-31",
+    "timing": "10:00 AM – 12:00 PM IST",
+    "zoomLink": "https://zoom.us/j/1234567890",
+    "zoomId": "123 456 7890",
+    "zoomPass": "learn123",
+    "active": true,
+    "students": []
+  },
+  {
+    "id": "b2",
+    "name": "Weekday Batch – April 2026 js",
+    "type": "weekday",
+    "start": "2026-04-07",
+    "end": "2026-05-28",
+    "timing": "07:00 PM – 09:00 PM IST",
+    "zoomLink": "https://zoom.us/j/9876543210",
+    "zoomId": "987 654 3210",
+    "zoomPass": "ba2026",
+    "active": true,
+    "students": []
+  },
+  {
+    "id": "b3",
+    "name": "Weekday Batch – April 2026 react",
+    "type": "weekday",
+    "start": "2026-04-07",
+    "end": "2026-05-28",
+    "timing": "08:00 PM – 09:00 PM IST",
+    "zoomLink": "https://zoom.us/j/9876543210",
+    "zoomId": "987 654 3210",
+    "zoomPass": "bc2026",
+    "active": true,
+    "students": []
+  },
+  {
+    "id": "b4",
+    "name": "Weekday Batch – April 2026 spring",
+    "type": "weekday",
+    "start": "2026-04-07",
+    "end": "2026-05-28",
+    "timing": "08:00 PM – 08:00 PM IST",
+    "zoomLink": "https://zoom.us/j/9876543210",
+    "zoomId": "987 654 3210",
+    "zoomPass": "bd2026",
+    "active": true,
+    "students": []
+  }
+]

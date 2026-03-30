@@ -1,0 +1,65 @@
+[
+  {
+    "id": "d1",
+    "title": "BA Foundations – Introduction Deck",
+    "module": "Module 01",
+    "batch": "all",
+    "url": "#",
+    "type": "pdf",
+    "uploadedAt": "2026-04-01"
+  },
+  {
+    "id": "d2",
+    "title": "BRD Template",
+    "module": "Module 02",
+    "batch": "all",
+    "url": "#",
+    "type": "template",
+    "uploadedAt": "2026-04-03"
+  },
+  {
+    "id": "d3",
+    "title": "User Story Format & Examples",
+    "module": "Module 02",
+    "batch": "all",
+    "url": "#",
+    "type": "reference",
+    "uploadedAt": "2026-04-04"
+  },
+  {
+    "id": "d5",
+    "title": "User Story Format & Examples myexplae",
+    "module": "Module 02",
+    "batch": "all",
+    "url": "#",
+    "type": "reference",
+    "uploadedAt": "2026-04-04"
+  },
+  {
+    "id": "d4",
+    "title": "JIRA Basics Cheat Sheet",
+    "module": "Module 03",
+    "batch": "all",
+    "url": "#",
+    "type": "pdf",
+    "uploadedAt": "2026-04-06"
+  },
+  {
+    "id": "d1774869410499",
+    "title": "document-tit-testing",
+    "module": "Module 01",
+    "batch": "all",
+    "url": "url-sample",
+    "type": "pdf",
+    "uploadedAt": "2026-03-30"
+  },
+  {
+    "id": "d1774871364252",
+    "title": "testing-fornt-end",
+    "module": "Module 01",
+    "batch": "all",
+    "url": "url",
+    "type": "pdf",
+    "uploadedAt": "2026-03-30"
+  }
+]

@@ -1,9 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const authRoutes = require('./routes/authRoutes');
 const cookieParser = require('cookie-parser');
+const authRoutes = require('./routes/authRoutes');
+const publicRoutes = require('./routes/publicRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const { requirePermission } = require('../middleware/rbacMiddleware');
+// Assume you have a jwt middleware that validates the token and sets req.user
+const { verifyToken } = require('../middleware/jwtMiddleware');
 
 const app = express();
 
@@ -12,8 +16,11 @@ const app = express();
 const exactOrigins = [
     'http://localhost:5500', 
     'http://127.0.0.1:5500',
-    'http://localhost:3000'
+    'https://127.0.0.1:5500',
+    'http://localhost:3000',
 ];
+
+app.use(cookieParser());
 
 // 2. Regex matches for your production domains (allows root and ALL subdomains)
 // The (.*\.)? part means "any characters followed by a dot, optional"
@@ -43,16 +50,24 @@ app.use(cors({
         // If it fails both checks, block it
         callback(new Error('Not allowed by CORS'));
     },
-    credentials: true // Crucial for cookies!
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+    // , // Crucial for cookies!,
+    ,methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 app.use(bodyParser.json());
-app.use(cookieParser());
-
+// 🌟 NEW: INJECT CLIENT NAME MIDDLEWARE
+// This ensures every request knows which database to hit
+app.use((req, res, next) => {
+    req.clientName = 'taleeo_lms';
+    next();
+});
 // Base Route
-app.get('/', (req, res) => res.send('TALeeO API is running...'));
-
+app.get('/', (req, res) => res.send(`API is running for ${req.clientName}...`));
 // Directing traffic to your route files
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/admin', adminRoutes);
-
+// Directing traffic to your route files
+app.use('/auth', authRoutes); // Note: Removed /api/v1/ here because master index.js handles the prefix!
+app.use('/public', publicRoutes); // Note: Removed /api/v1/ here because master index.js handles the prefix!
+// app.use('/public', publicRoutes); // Note: Removed /api/v1/ here because master index.js handles the prefix!
+app.use('/admin', adminRoutes);
 module.exports = app;

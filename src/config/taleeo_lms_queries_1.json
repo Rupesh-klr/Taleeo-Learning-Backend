@@ -1,0 +1,77 @@
+{
+  "GET_ROLE_BY_NAME": {
+    "collection": "roles"
+  },
+  "GET_ALL_STUDENTS": {
+    "collection": "users",
+    "sort": { "createdAt": -1 }
+  },
+  "GET_USER_BY_EMAIL": {
+    "collection": "users"
+  },
+  "GET_ROLE_BY_ID": {
+    "collection": "roles"
+  },
+  "GET_ACTIVE_BATCHES": {
+    "collection": "batches",
+    "where": { 
+      "active": true,
+      "isDeleted": { "$ne": true } 
+    }
+  },
+  "GET_ALL_DOCUMENTS": {
+    "collection": "documents"
+  },
+  "GET_ALL_RECORDINGS": {
+    "collection": "recordings"
+  },
+  "GET_ALL_ATTENDANCE": {
+    "collection": "attendance"
+  },
+  "GET_ROLE_PERMISSIONS": {
+    "collection": "permissions", 
+    "table": "permissions" 
+  },
+  "getStudentsWithRoles": {
+        "collection": "users",
+        "pipeline": [
+            {
+                "$lookup": {
+                    "from": "roles",
+                    "localField": "roleId",
+                    "foreignField": "id",
+                    "as": "roleDetails"
+                }
+            },
+            { "$unwind": "$roleDetails" },
+            {
+                "$match": {
+                    "roleDetails.name": "student",
+                    "isDeleted": false
+                }
+            },
+            { "$sort": { "createdAt": -1 } }
+        ]
+    },
+    "getCourseFullDetails": {
+        "collection": "courses",
+        "pipeline": [
+            {
+                "$lookup": {
+                    "from": "modules",
+                    "localField": "id",
+                    "foreignField": "courseId",
+                    "as": "modules"
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "batches",
+                    "localField": "id",
+                    "foreignField": "courseId",
+                    "as": "batches"
+                }
+            }
+        ]
+    }
+}

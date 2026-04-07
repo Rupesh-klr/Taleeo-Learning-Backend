@@ -1,0 +1,20 @@
+{
+  "GET_ALL_STUDENTS": {
+    "table": "users",
+    "where": { "role": "student" },
+    "orderBy": "createdAt DESC"
+  },
+  "GET_USER_BY_EMAIL": {
+    "table": "users"
+  },
+  "GET_ACTIVE_BATCHES": {
+    "table": "batches",
+    "where": { "active": true }
+  },
+  "GET_ALL_DOCUMENTS": {
+    "table": "documents"
+  },
+  "GET_ALL_RECORDINGS": {
+    "table": "recordings"
+  }
+}

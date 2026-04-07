@@ -1,0 +1,10 @@
+# 1 = MongoDB, 2 = MySQL, 3 = PostgreSQL
+DB_TYPE=1
+PORT=3000
+# Database Connection Pool Limits
+DB_POOL_MIN=2
+DB_POOL_MAX=5
+JWT_SECRET=pleasedontmissingmyserver
+REFRESH_TOKEN_SECRET=my_super_secret_refresh_key_2026
+# Add this to your .env
+ENABLE_GUEST_LOGIN=true

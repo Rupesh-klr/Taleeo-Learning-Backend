@@ -1,9 +1,7 @@
 {
   "taleeo_lms": {
     "1": {
-      "type": "mongodb",
-      "url": "mongodb+srv://krishnaleena222_db_user_taleeo:K2xmUcwZAwVlYzWC@cluster0.kqny3y2.mongodb.net/taleeo_lms?appName=Cluster0&maxPoolSize=5&minPoolSize=2",
-      "database": "taleeo_lms"
+      "type": "mongodb","database": "taleeo_lms"
     },
     "2": {
       "type": "mysql",

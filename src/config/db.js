@@ -38,10 +38,21 @@ async function connectDB(connectionName) {
             dbInstance = new Pool(config);
             console.log(`🚀 PostgreSQL Connected for [${connectionName}]`);
         } else if (dbType === '1') {
-            const mongoClient = new MongoClient(config.url);
+
+
+            const envVarName = `MONGO_URL_${config.database.toUpperCase()}`;
+            const mongoUrl = process.env[envVarName];
+            
+            if (!mongoUrl) {
+                throw new Error(`Environment variable ${envVarName} is not defined in your .env file!`);
+            }
+
+            // Connect using the secure, database-specific environment variable
+            const mongoClient = new MongoClient(mongoUrl);
             await mongoClient.connect();
             dbInstance = mongoClient.db(config.database);
-            console.log(`🚀 MongoDB Atlas Connected for [${connectionName}]`);
+            
+            console.log(`🚀 MongoDB Atlas Connected for [${connectionName}] using ${envVarName}`);
         }
 
         // Save the instance and its queries into our active cache

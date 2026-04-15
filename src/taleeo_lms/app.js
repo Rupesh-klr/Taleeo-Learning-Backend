@@ -34,7 +34,9 @@ app.use(cookieParser());
 // The (.*\.)? part means "any characters followed by a dot, optional"
 const allowedDomainRegexes = [
     /^https:\/\/(.*\.)?holistichealervedika\.com$/,
-    /^https:\/\/(.*\.)?rathhindia\.in$/
+    /^https:\/\/(.*\.)?rathhindia\.in$/,
+    /^https:\/\/(.*\.)?taleeolearning\.com$/,
+    /^https:\/\/(.*\.)?taleeolearning\.in$/
 ];
 
 app.use(cors({

@@ -249,7 +249,7 @@ const getStudents = async (req, res) => {
 
 const createStudent = async (req, res) => {
     try {
-        const studentPayload = { ...req.body, role: 'student' };
+        const studentPayload = { ...req.body, role: 'student',isDeleted:false };
         const newStudent = await userService.createStudent(req.clientName, studentPayload); // 🌟
         res.status(201).json({ message: 'Student created successfully', user: newStudent });
     } catch (error) {

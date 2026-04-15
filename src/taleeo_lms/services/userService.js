@@ -5,12 +5,15 @@ const { validateSchema } = require('../models/schemaValidator');
  * Finds a user in the database by email
  */
 const findUserByEmail = async (clientName, email) => {
+     console.log(email);
     // Dynamic query using the JSON dictionary
     const users = await db.executeSelect(clientName, 'GET_USER_BY_EMAIL', {
         where: { email: email.toLowerCase() , isDeleted: false }
     });
+     console.log(users);
     if (users.length === 0) return null;
     const user = users[0];
+    console.log(user);
 
     // 2. THE JOIN: Fetch the actual role string using the user's roleId
     if (user.roleId) {
@@ -45,6 +48,8 @@ const findUserByEmailFast = async (clientName, email) => {
  */
 const validateLogin = async (clientName, email, password) => {
     const user = await findUserByEmail(clientName, email);
+    console.log(user);
+    console.log(password)
     
     // Note: In production, compare hashed passwords using bcrypt!
     if (user && user.password === password) {

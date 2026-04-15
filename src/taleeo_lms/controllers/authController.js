@@ -49,7 +49,7 @@ const setTokenCookies = (res, accessToken, refreshToken) => {
     const cookieOptions = {
         httpOnly: true, 
         secure: isProd, // true in production (HTTPS), false in dev (HTTP)
-        sameSite: 'lax', 
+        sameSite: isProd ? 'none' : 'lax',
         path: '/', // 🌟 FIXED: Use '/' to cover all sub-paths/endpoints
         maxAge: 24 * 60 * 60 * 1000 
     };
@@ -277,7 +277,7 @@ const logout = async (req, res) => {
     const clearOptions = {
         httpOnly: true,
         secure: isProd,
-        sameSite: 'lax',
+        sameSite: isProd ? 'none' : 'lax',
         path: '/'
     };
 

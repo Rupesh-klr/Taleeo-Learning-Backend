@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
+const studentRoutes = require('./routes/studentRoutes');
 const publicRoutes = require('./routes/publicRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const { requirePermission } = require('../middleware/rbacMiddleware');
@@ -12,17 +13,24 @@ const { verifyToken } = require('../middleware/jwtMiddleware');
 const app = express();
 
 // Middleware
-// 1. Exact matches for your local development environments
+// 1. Exact matches for stable local URLs
 const exactOrigins = [
-    'http://localhost:5500', 
-    'http://127.0.0.1:5500',
-    'https://127.0.0.1:5500',
     'http://localhost:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500'
+];
+
+// 2. Regex for localhost/127 with any local dev port (Vite, Live Server, etc.)
+const localOriginRegexes = [
+    /^http:\/\/localhost:\d+$/,
+    /^http:\/\/127\.0\.0\.1:\d+$/,
+    /^https:\/\/localhost:\d+$/,
+    /^https:\/\/127\.0\.0\.1:\d+$/
 ];
 
 app.use(cookieParser());
 
-// 2. Regex matches for your production domains (allows root and ALL subdomains)
+// 3. Regex matches for your production domains (allows root and ALL subdomains)
 // The (.*\.)? part means "any characters followed by a dot, optional"
 const allowedDomainRegexes = [
     /^https:\/\/(.*\.)?holistichealervedika\.com$/,
@@ -41,7 +49,13 @@ app.use(cors({
             return callback(null, true);
         }
 
-        // Check if the origin matches our wildcard subdomains
+        // Check dynamic local origins first (localhost/127 on any port)
+        const isLocalAllowed = localOriginRegexes.some(regex => regex.test(origin));
+        if (isLocalAllowed) {
+            return callback(null, true);
+        }
+
+        // Check if the origin matches allowed production domains
         const isAllowedDomain = allowedDomainRegexes.some(regex => regex.test(origin));
         if (isAllowedDomain) {
             return callback(null, true);
@@ -70,4 +84,20 @@ app.use('/auth', authRoutes); // Note: Removed /api/v1/ here because master inde
 app.use('/public', publicRoutes); // Note: Removed /api/v1/ here because master index.js handles the prefix!
 // app.use('/public', publicRoutes); // Note: Removed /api/v1/ here because master index.js handles the prefix!
 app.use('/admin', adminRoutes);
+app.use('/student', studentRoutes);
+
+// Global error handler: ensures unhandled route errors produce one consistent response.
+app.use((err, req, res, next) => {
+    console.error('Unhandled API error:', err);
+
+    if (res.headersSent) {
+        return next(err);
+    }
+
+    const status = Number(err?.status || err?.statusCode || 500);
+    return res.status(status).json({
+        message: err?.message || 'Internal server error'
+    });
+});
+
 module.exports = app;

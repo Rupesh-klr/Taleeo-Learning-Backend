@@ -42,6 +42,8 @@ async function connectDB(connectionName) {
 
             const envVarName = `MONGO_URL_${config.database.toUpperCase()}`;
             const mongoUrl = process.env[envVarName];
+            // console.log(`🔍 Attempting MongoDB connection for [${connectionName}] using env var: ${envVarName}`);
+            // console.log(`🔍 Attempting MongoDB connection for [${envVarName}] using env var: ${mongoUrl}`);
             
             if (!mongoUrl) {
                 throw new Error(`Environment variable ${envVarName} is not defined in your .env file!`);

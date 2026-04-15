@@ -8,3 +8,56 @@ JWT_SECRET=pleasedontmissingmyserver
 REFRESH_TOKEN_SECRET=my_super_secret_refresh_key_2026
 # Add this to your .env
 ENABLE_GUEST_LOGIN=true
+
+
+Documents & Notes
+    -  global(access to everyone to see/view)
+    - from courses(access to students enrolled in the course. for all batches)
+    - from batches(access to students enrolled in the batches.)
+Class Recordings
+    -  global(access to everyone to see/view)
+    - from courses(access to students enrolled in the course. for all batches)
+    - from batches(access to students enrolled in the batches.)
+
+lot many bug in mobiel point of view. need to fix asap as by next stage.
+
+where student have ability to see the all courses and batches. 
+but not have access need to request approve. where admin need to approve the request.
+
+need to created funcationaly where bulk sending email from excel. to join/generate certificate.
+
+know user/student will have only access to 
+global- Class Recordings & Documents & Notes
+from courses can all details batches details can see senstive data meeting details.
+only access Class Recordings, Documents & Notes, batches detailes enrolled.
+
+https://www.coursera.org/account/accomplishments/professional-cert/8FZYBJK6Q59Y?utm_source=link&utm_medium=certificate&utm_content=cert_image&utm_campaign=sharing_cta&utm_product=prof
+
+https://www.coursera.org/account/accomplishments/professional-cert/YSCRDRBS8CRY?utm_source=ln&utm_medium=certificate&utm_content=cert_image&utm_campaign=sharing_cta&utm_product=prof
+
+https://certificates.mooc.fi/validate/avzuhhu5sun
+
+
+
+
+i need this formated data like for make more understandable
+courses details:- 
+name:-
+description:-
+tag:-
+notes/ addintional:-
+
+for each module detials:-
+Title:-
+Topics:-
+Bonus Outcomes :-
+
+for each Batch details:-
+Batch Name
+Type:-(fixed to dropdown weekend and weekday any other option need?)
+Start Date:-
+End Date:-
+Zoom Link:-
+
+
+

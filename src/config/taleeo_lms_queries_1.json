@@ -19,6 +19,9 @@
       "isDeleted": { "$ne": true } 
     }
   },
+  "GET_BATCHES_BY_IDS": {
+    "collection": "batches"
+  },
   "GET_ALL_DOCUMENTS": {
     "collection": "documents"
   },

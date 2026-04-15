@@ -94,6 +94,98 @@ const updateAttendance = async (req, res) => {
     const updated = await attendanceService.saveAttendance(req.clientName, req.body); // 🌟
     res.json(updated);
 };
+const getStudentDashboardSummary = async (req, res) => {
+    try {
+        const client = req.clientName;
+
+        // 🌟 HIGH PERFORMANCE: Fetching existing DB data concurrently
+        const [
+            attendanceCount,   // totalStudents
+            classesCount,      // activeBatchesCount
+            totalDocs, 
+            totalRecs, 
+            activeBatchesRaw,
+            recentRecsRaw
+        ] = await Promise.all([
+            userService.getStudentCount(client),
+            batchService.getActiveBatchCount(client),
+            contentService.getDocsCount(client),
+            contentService.getRecsCount(client),
+            batchService.getActiveBatches(client),
+            contentService.getRecentRecordings(client, 2) // Assuming you have this service
+        ]);
+
+        // 🌟 STATIC DATA (To be moved to DB later)
+        const activeUser = {
+            name: "Rupesh Kumar",
+            email: "rupesh@taleeo.local",
+            role: "Instructor",
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${req.user?.name || 'Rupesh'}`
+        };
+
+        const quickActions = [
+            { label: "Add New Batch", icon: "plus-circle", route: "/admin/add-batch" },
+            { label: "Upload Document", icon: "file-upload", route: "/admin/upload" },
+            { label: "Send Announcement", icon: "mega-phone", route: "/admin/notify" }
+        ];
+
+        // 🌟 FORMATTING DATA to match your JSON Model
+        const batches = activeBatchesRaw.map(b => ({
+            batchId: b.id || b._id,
+            title: b.name,
+            timing: b.timing,
+            days: b.days || "Mon-Fri", // Fallback if not in DB
+            type: b.type || "Live Session",
+            zoomConfig: {
+                meetingId: b.zoomId || "N/A",
+                passcode: b.zoomPass || "N/A",
+                link: b.zoomLink || "#"
+            },
+            studentCount: b.studentCount || 0,
+            status: b.status || "Active"
+        }));
+
+        const recentRecordings = [{},{}].map(r => ({
+            id: r.id || r._id,
+            title: r.title,
+            date: r.createdAt || "Recent",
+            duration: r.duration || "00:00",
+            thumbnail: r.thumbnail || "/assets/recs/default.png",
+            url: r.url || "#"
+        }));
+
+        // 🌟 FINAL RESPONSE MAPPING
+        const responseBody = {
+            stats: {
+                studentsAttendance: attendanceCount,
+                classesAttended: classesCount,
+                recordingsAvailable: totalRecs,
+                documentsShared: totalDocs
+            },
+            activeUser,
+            modules: [{
+            "id": "Rupesh Student",
+            "title": "rupesh@taleeo.local"
+        },{
+            "id": "Rupesh Student_1",
+            "title": "rupesh@taleeo.local"
+        }], // Future: Add userService.getAssignedModules(client)
+            batches,
+            recentRecordings,
+            quickActions,
+            recentRecsRaw
+        };
+
+        res.status(200).json(responseBody);
+
+    } catch (error) {
+        console.error("Dashboard Summary Error:", error);
+        res.status(500).json({ 
+            message: 'Error fetching dashboard summary', 
+            error: error.message 
+        });
+    }
+};
 
 const getDashboardSummary = async (req, res) => {
     try {
@@ -691,7 +783,7 @@ module.exports = {
     getRecordings, postRecording,
     updateAttendance, getDashboardSummary,
     getStudents, createStudent, createAdmin,
-    deleteCourse,
+    deleteCourse, getStudentDashboardSummary,
     // searchCourses, createCourse, updateCourse, deleteCourse, getAdvancedCourseDetails,getCourses
     searchCourses, getCourses,
     postCourse,

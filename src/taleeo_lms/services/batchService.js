@@ -8,6 +8,25 @@ const getActiveBatchCount = async (clientName) => {
 const getActiveBatches = async (clientName) => {
     return await db.executeSelect(clientName, 'GET_ACTIVE_BATCHES');
 };
+
+const getActiveBatchesBylist = async (clientName, enrolledBatchIds = []) => {
+    if (!Array.isArray(enrolledBatchIds) || enrolledBatchIds.length === 0) {
+        return [];
+    }
+
+    const uniqueIds = [...new Set(enrolledBatchIds.filter(Boolean))];
+    if (uniqueIds.length === 0) {
+        return [];
+    }
+
+    return await db.executeSelect(clientName, 'GET_BATCHES_BY_IDS', {
+        where: {
+            id: { $in: uniqueIds },
+            isDeleted: { $ne: true }
+        },
+        limit: uniqueIds.length
+    });
+};
 const softDeleteBatch = async (clientName, batchId) => {
     const data = {
         filter: { id: batchId },
@@ -41,6 +60,7 @@ module.exports = {
     getAllBatches, 
     createBatch, 
     getActiveBatches, 
+    getActiveBatchesBylist,
     getActiveBatchCount ,
     softDeleteBatch
 };

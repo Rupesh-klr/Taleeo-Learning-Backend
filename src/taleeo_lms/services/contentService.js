@@ -6,6 +6,9 @@ const getAllDocuments = async (clientName) => {
     return await db.executeSelect(clientName, 'GET_ALL_DOCUMENTS');
 };
 
+const getRecentRecordings = async (clientName) => {
+    return await db.executeCount(clientName, 'GET_ALL_DOCUMENTS');
+};
 const getDocsCount = async (clientName) => {
     return await db.executeCount(clientName, 'GET_ALL_DOCUMENTS');
 };
@@ -54,5 +57,6 @@ module.exports = {
     getDocsCount,
     getAllRecordings, 
     addRecording,
-    getRecsCount
+    getRecsCount,
+    getRecentRecordings
 };

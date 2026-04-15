@@ -29,6 +29,18 @@ const findUserByEmail = async (clientName, email) => {
 };
 
 /**
+ * Fast profile lookup by email (single query, no role join)
+ */
+const findUserByEmailFast = async (clientName, email) => {
+    const users = await db.executeSelect(clientName, 'GET_USER_BY_EMAIL', {
+        where: { email: String(email || '').toLowerCase(), isDeleted: false },
+        limit: 1
+    });
+    if (users.length === 0) return null;
+    return users[0];
+};
+
+/**
  * Validates login and returns the user object if successful
  */
 const validateLogin = async (clientName, email, password) => {
@@ -158,6 +170,7 @@ const getRecentStudents = async (clientName, limitCount) => {
 };
 module.exports = { 
     findUserByEmail, 
+    findUserByEmailFast,
     validateLogin, 
     updateUser, 
     createStudent,

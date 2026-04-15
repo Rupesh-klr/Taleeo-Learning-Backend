@@ -39,7 +39,53 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-module.exports = { verifyToken };
+const getUserDetails = async (req) => {
+    try {
+        let token = req.cookies && req.cookies.token;
+
+        if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+            token = req.headers.authorization.split(' ')[1];
+        }
+
+        if (!token) {
+            const error = new Error("Access Denied: No authentication token provided.");
+            error.status = 401;
+            throw error;
+        }
+
+        const tokenSecret = process.env.JWT_SECRET || 'pleasedontmissingmyserver';
+        const decoded = jwt.verify(token, tokenSecret);
+        // console.log("Decoded JWT Payload:", decoded); // 🌟 Debug: Check decoded token contents
+
+        // 🌟 FATAL SECURITY SHIELD: Block Ghost Tokens in Production!
+        // If the token belongs to a ghost, but the server is not in dev mode, kill the request instantly.
+        if (decoded.id && decoded.id.startsWith('ghost_')) {
+            if (process.env.ENABLE_GUEST_LOGIN !== 'true') {
+                const error = new Error("SECURITY ALERT: Local Dev Ghost tokens are strictly forbidden in this environment.");
+                error.status = 403;
+                throw error;
+            }
+        }
+        req.user = decoded;
+        // Attach user to request
+        return  decoded;
+    } catch (error) {
+        console.error("JWT Verification Error:", error.message);
+        if (error.name === 'TokenExpiredError') {
+            const expiredError = new Error("Session expired. Please log in again.");
+            expiredError.status = 401;
+            throw expiredError;
+        }
+        if (!error.status) {
+            error.status = 401;
+            error.message = "Invalid token.";
+        }
+        throw error;
+    }
+};
+
+
+module.exports = { verifyToken, getUserDetails };
 // const jwt = require('jsonwebtoken');
 // require('dotenv').config();
 

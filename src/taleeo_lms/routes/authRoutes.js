@@ -9,5 +9,5 @@ router.get('/guest-login', authController.guestLogin);
 router.get('/me', verifyToken, authController.getCurrentUser);
 router.post('/refresh', authController.refreshAccessToken);
 // routes/authRoutes.js
-router.put('/reset-password',authController.resetPassword);
+router.put('/reset-password', verifyToken, authController.resetPassword);
 module.exports = router;

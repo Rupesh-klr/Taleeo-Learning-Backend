@@ -1,6 +1,31 @@
 const userService = require('../services/userService');
 const jwt = require('jsonwebtoken'); 
+const db = require('../../config/db');
 require('dotenv').config();
+
+const ME_CACHE_TTL_MS = 60 * 1000; // 1 minute
+const ME_CACHE_LIMIT = 500;
+const meCache = new Map();
+
+const meCacheKey = (clientName, email) => `${clientName}::${String(email || '').toLowerCase()}`;
+
+const getCachedMe = (key) => {
+    const entry = meCache.get(key);
+    if (!entry) return null;
+    if (Date.now() - entry.cachedAt > ME_CACHE_TTL_MS) {
+        meCache.delete(key);
+        return null;
+    }
+    return entry.user;
+};
+
+const setCachedMe = (key, user) => {
+    meCache.set(key, { user, cachedAt: Date.now() });
+    if (meCache.size > ME_CACHE_LIMIT) {
+        const oldestKey = meCache.keys().next().value;
+        if (oldestKey) meCache.delete(oldestKey);
+    }
+};
 
 // Helper function to generate both tokens cleanly
 const generateTokens = (user) => {
@@ -38,11 +63,34 @@ const setTokenCookies = (res, accessToken, refreshToken) => {
 };
 const resetPassword = async (req, res) => {
     try {
-        const { newPass } = req.body;
-        const userId = req.user.id; // Extracted from your auth middleware
+        const { oldPass, newPass } = req.body;
+
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'Not authenticated properly' });
+        }
+
+        const userId = req.user.id;
+        const userEmail = req.user.email;
+
+        if (!oldPass || String(oldPass).trim().length === 0) {
+            return res.status(400).json({ message: 'Old password is required.' });
+        }
 
         if (!newPass || newPass.length < 6) {
             return res.status(400).json({ message: "Password must be at least 6 characters." });
+        }
+
+        const existingUser = await userService.findUserByEmail(req.clientName, userEmail);
+        if (!existingUser) {
+            return res.status(404).json({ message: 'User no longer exists in database' });
+        }
+
+        if (existingUser.password !== oldPass) {
+            return res.status(400).json({ message: 'Old password is incorrect.' });
+        }
+
+        if (oldPass === newPass) {
+            return res.status(400).json({ message: 'New password must be different from old password.' });
         }
 
         const data = {
@@ -50,7 +98,8 @@ const resetPassword = async (req, res) => {
             updateData: { 
                 $set: { 
                     password: newPass,
-                    firstLogin: true, // Mark that they've updated their default password
+                    firstLogin: true,
+                    firstLoginDone: true,
                     modifiedAt: Date.now()
                 } 
             }
@@ -58,6 +107,9 @@ const resetPassword = async (req, res) => {
 
         // clientName identifies which MongoDB cluster to use
         await db.executeWrite(req.clientName, 'users', data, 'updateOne');
+
+        // Invalidate /auth/me cache entry for this user so fresh profile is loaded next call.
+        meCache.delete(meCacheKey(req.clientName, userEmail));
 
         res.status(200).json({ message: "Password updated successfully" });
     } catch (error) {
@@ -134,25 +186,9 @@ const refreshAccessToken = async (req, res) => {
                 return res.status(403).json({ error: "Invalid or expired refresh token. Please log in again." });
             }
 
-            // 3. Token is valid! Issue a fresh 15-minute Access Token
-            const payload = { 
-                id: decoded.id, 
-                roleId: decoded.roleId, 
-                role: decoded.role, 
-                email: decoded.email 
-            };
-            
-            const newAccessToken = jwt.sign(payload, process.env.JWT_SECRET || 'pleasedontmissingmyserver', { expiresIn: '15m' });
-
-            // 4. Send the new Access Token back to the browser
-            const isProd = process.env.NODE_ENV === 'production';
-            res.cookie('token', newAccessToken, {
-                httpOnly: true, 
-                secure: false, 
-                sameSite: 'lax', 
-                path: '/', // 🌟 CRITICAL FIX: Forces the cookie to be available to EVERY endpoint on localhost
-                maxAge: 15 * 60 * 1000 
-            });
+            // 3. Token is valid! Rotate BOTH tokens so browser always has fresh cookies.
+            const { accessToken, refreshToken: newRefreshToken } = generateTokens(decoded);
+            setTokenCookies(res, accessToken, newRefreshToken);
 
             res.status(200).json({ message: "Token refreshed successfully!" });
         });
@@ -192,7 +228,6 @@ const getCurrentUser = async (req, res) => {
                 tokenPayload: req.user,
                 databaseUser: {
                     ...req.user, // The payload from the JWT
-        ...(freshUserData || {}),// Overlay with DB data if exists
                     id: req.user.id,
                     name: `Test ${req.user.role}`,
                     email: req.user.email,
@@ -204,12 +239,29 @@ const getCurrentUser = async (req, res) => {
         }
 
         // --- NORMAL FLOW FOR REAL USERS ---
-        // Fetch the freshest data from the database using the email in the token
-        const freshUserData = await userService.validateLogin(req.clientName, req.user.email, null);
+        const cacheKey = meCacheKey(req.clientName, req.user.email);
+        const cachedUser = getCachedMe(cacheKey);
+
+        if (cachedUser) {
+            return res.status(200).json({
+                message: "Token is valid!",
+                tokenPayload: req.user,
+                databaseUser: cachedUser
+            });
+        }
+
+        // Fast profile lookup by email (single query); role comes from token payload.
+        const freshUserData = await userService.findUserByEmailFast(req.clientName, req.user.email);
         
         if (!freshUserData) return res.status(404).json({ message: "User no longer exists in database" });
 
+        if (!freshUserData.role && req.user.role) {
+            freshUserData.role = req.user.role;
+        }
+
         delete freshUserData.password; // Never send passwords back
+        setCachedMe(cacheKey, freshUserData);
+
         res.status(200).json({
             message: "Token is valid!",
             tokenPayload: req.user, 

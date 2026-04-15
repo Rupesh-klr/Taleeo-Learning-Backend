@@ -8,6 +8,17 @@ const db = require('../../config/db');
 
 const { getUserDetails } = require('../../middleware/jwtMiddleware');
 
+function readBooleanEnv(name, defaultValue = false) {
+    const raw = process.env[name];
+    if (raw === undefined || raw === null || String(raw).trim() === '') {
+        return defaultValue;
+    }
+    return ['1', 'true', 'yes', 'on'].includes(String(raw).trim().toLowerCase());
+}
+
+// Cache is OFF by default. Enable explicitly via env when needed.
+const TLMS_ENABLE_STUDENT_DATA_CACHE = readBooleanEnv('TLMS_ENABLE_STUDENT_DATA_CACHE', false);
+
 // In-memory student cache (per server instance)
 const STUDENT_CACHE_LIMIT = 150;
 const STUDENT_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
@@ -23,6 +34,7 @@ function studentCacheKey(clientName, email) {
 }
 
 function pruneStudentCache() {
+    if (!TLMS_ENABLE_STUDENT_DATA_CACHE) return;
     const now = Date.now();
 
     // 1) Remove expired entries by timestamp
@@ -48,6 +60,7 @@ function dashboardCacheKey(clientName, kind, ids = []) {
 }
 
 function pruneDashboardCache() {
+    if (!TLMS_ENABLE_STUDENT_DATA_CACHE) return;
     const now = Date.now();
 
     for (const [key, entry] of dashboardCache.entries()) {
@@ -66,6 +79,7 @@ function pruneDashboardCache() {
 }
 
 function getDashboardCache(key) {
+    if (!TLMS_ENABLE_STUDENT_DATA_CACHE) return null;
     const entry = dashboardCache.get(key);
     if (!entry) return null;
 
@@ -78,6 +92,7 @@ function getDashboardCache(key) {
 }
 
 function setDashboardCache(key, value) {
+    if (!TLMS_ENABLE_STUDENT_DATA_CACHE) return;
     dashboardCache.set(key, {
         value,
         cachedAt: Date.now()
@@ -136,7 +151,7 @@ const getCurrentStudent = async (req) => {
 
         const key = studentCacheKey(req.clientName, user.email);
         const now = Date.now();
-        const cached = studentCache.get(key);
+        const cached = TLMS_ENABLE_STUDENT_DATA_CACHE ? studentCache.get(key) : null;
 
         if (cached && now - cached.cachedAt <= STUDENT_CACHE_TTL_MS) {
             cached.lastAccessAt = now;
@@ -148,14 +163,14 @@ const getCurrentStudent = async (req) => {
         const student = await userService.findUserByEmail(req.clientName, user.email);
         console.log("Fetched Student Profile:", student); // 🌟 Debug: Check fetched student profile
 
-        if (student) {
+        if (student && TLMS_ENABLE_STUDENT_DATA_CACHE) {
             studentCache.set(key, {
                 student,
                 cachedAt: now,
                 lastAccessAt: now
             });
             pruneStudentCache();
-        } else {
+        } else if (TLMS_ENABLE_STUDENT_DATA_CACHE) {
             // User not found: remove any stale cache record for this email.
             studentCache.delete(key);
         }

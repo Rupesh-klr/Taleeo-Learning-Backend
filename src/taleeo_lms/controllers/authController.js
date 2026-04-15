@@ -127,7 +127,8 @@ const login = async (req, res) => {
         const { accessToken, refreshToken } = generateTokens(user);
         setTokenCookies(res, accessToken, refreshToken);
         res.status(200).json({
-            requiresOtp: user.role === 'student' && !user.firstLoginDone,
+            // requiresOtp: user.role === 'student' && !user.firstLoginDone,
+            requiresOtp: false,
             user: { id: user.id, name: user.name, roleId: user.roleId, role: user.role, email: user.email }
         });
     } catch (error) {

@@ -40,6 +40,16 @@ const postDocument = async (req, res) => {
     res.status(201).json(doc);
 };
 
+const updateDocument = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const doc = await contentService.updateDocument(req.clientName, id, req.body);
+        res.status(200).json(doc);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update document', error: error.message });
+    }
+};
+
 const deleteDocument = async (req, res) => {
     try {
         const { id } = req.params;
@@ -99,6 +109,16 @@ const getRecordings = async (req, res) => {
 const postRecording = async (req, res) => {
     const rec = await contentService.addRecording(req.clientName, req.body); // 🌟
     res.status(201).json(rec);
+};
+
+const updateRecording = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const rec = await contentService.updateRecording(req.clientName, id, req.body);
+        res.status(200).json(rec);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update recording', error: error.message });
+    }
 };
 
 const deleteRecording = async (req, res) => {
@@ -854,8 +874,8 @@ module.exports = {
     createModule, updateModule, deleteModule,
     getBatches, createNewBatch, 
     updateBatch,
-    getDocuments, postDocument, deleteDocument,
-    getRecordings, postRecording, deleteRecording,
+    getDocuments, postDocument, updateDocument, deleteDocument,
+    getRecordings, postRecording, updateRecording, deleteRecording,
     updateAttendance, getDashboardSummary,
     getStudents, createStudent, createAdmin,
     deleteCourse, getStudentDashboardSummary,

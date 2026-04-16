@@ -32,6 +32,28 @@ const deleteDocument = async (clientName, documentId) => {
     return await db.executeWrite(clientName, 'documents', { id: documentId }, 'deleteOne');
 };
 
+const updateDocument = async (clientName, documentId, docData) => {
+    const updatedDoc = {
+        ...docData,
+        id: documentId,
+        uploadedAt: docData.uploadedAt || new Date().toISOString().split('T')[0]
+    };
+
+    validateSchema('content', updatedDoc);
+
+    await db.executeWrite(
+        clientName,
+        'documents',
+        {
+            filter: { id: documentId },
+            updateData: { $set: updatedDoc }
+        },
+        'updateOne'
+    );
+
+    return updatedDoc;
+};
+
 // ---------------- Handle Recordings ----------------
 const getAllRecordings = async (clientName) => {
     return await db.executeSelect(clientName, 'GET_ALL_RECORDINGS');
@@ -59,13 +81,36 @@ const deleteRecording = async (clientName, recordingId) => {
     return await db.executeWrite(clientName, 'recordings', { id: recordingId }, 'deleteOne');
 };
 
+const updateRecording = async (clientName, recordingId, recData) => {
+    const updatedRec = {
+        ...recData,
+        id: recordingId
+    };
+
+    validateSchema('recordings', updatedRec);
+
+    await db.executeWrite(
+        clientName,
+        'recordings',
+        {
+            filter: { id: recordingId },
+            updateData: { $set: updatedRec }
+        },
+        'updateOne'
+    );
+
+    return updatedRec;
+};
+
 module.exports = { 
     getAllDocuments, 
     uploadDocument, 
+    updateDocument,
     deleteDocument,
     getDocsCount,
     getAllRecordings, 
     addRecording,
+    updateRecording,
     deleteRecording,
     getRecsCount,
     getRecentRecordings

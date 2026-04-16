@@ -10,11 +10,13 @@ router.post('/batches', adminController.createNewBatch);
 // Documents
 router.get('/documents', adminController.getDocuments);
 router.post('/documents', adminController.postDocument);
+router.put('/documents/:id', adminController.updateDocument);
 router.delete('/documents/:id', adminController.deleteDocument);
 
 // Recordings
 router.get('/recordings', adminController.getRecordings);
 router.post('/recordings', adminController.postRecording);
+router.put('/recordings/:id', adminController.updateRecording);
 router.delete('/recordings/:id', adminController.deleteRecording);
 
 // Attendance

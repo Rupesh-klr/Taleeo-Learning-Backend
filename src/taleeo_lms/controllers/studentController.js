@@ -304,6 +304,7 @@ const getStudentDashboardSummary = async (req, res, next) => {
             activeUser,
             modules,
             batches,
+            enrolledBatchesRaw,
             recentRecordings,
             quickActions,
             recentRecsRaw

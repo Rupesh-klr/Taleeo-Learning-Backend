@@ -121,7 +121,7 @@ const login = async (req, res) => {
     const { email, pass } = req.body;
     try {
         const user = await userService.validateLogin(req.clientName, email, pass);
-        if (!user) return res.status(401).json({ message: "Invalid credentials" });
+        if (!user) return res.status(401).json({ message: "Incorrect email or Incorrect Password" });
         console.log(user);
         
         const { accessToken, refreshToken } = generateTokens(user);

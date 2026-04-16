@@ -28,6 +28,10 @@ const uploadDocument = async (clientName, docData) => {
     return newDoc;
 };
 
+const deleteDocument = async (clientName, documentId) => {
+    return await db.executeWrite(clientName, 'documents', { id: documentId }, 'deleteOne');
+};
+
 // ---------------- Handle Recordings ----------------
 const getAllRecordings = async (clientName) => {
     return await db.executeSelect(clientName, 'GET_ALL_RECORDINGS');
@@ -51,12 +55,18 @@ const addRecording = async (clientName, recData) => {
     return newRec;
 };
 
+const deleteRecording = async (clientName, recordingId) => {
+    return await db.executeWrite(clientName, 'recordings', { id: recordingId }, 'deleteOne');
+};
+
 module.exports = { 
     getAllDocuments, 
     uploadDocument, 
+    deleteDocument,
     getDocsCount,
     getAllRecordings, 
     addRecording,
+    deleteRecording,
     getRecsCount,
     getRecentRecordings
 };

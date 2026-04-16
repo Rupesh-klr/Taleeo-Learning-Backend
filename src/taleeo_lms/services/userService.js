@@ -123,7 +123,7 @@ const createUser = async (clientName, userData) => {
         phone: userData.phone || '',
         firstLoginDone: false,
         avatar: userData.name ? userData.name[0].toUpperCase() : 'U',
-        batchId: userData.batchId || null,
+        enrolledBatches: userData.enrolledBatches || [],
         createdAt: new Date().toISOString()
     };
 

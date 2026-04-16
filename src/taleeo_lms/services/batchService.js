@@ -36,8 +36,70 @@ const softDeleteBatch = async (clientName, batchId) => {
 };
 
 const getAllBatches = async (clientName) => {
-    // Passing an empty where clause {} fetches ALL batches, overriding the default
-    return await db.executeSelect(clientName, 'GET_ACTIVE_BATCHES', { where: {} });
+    // Filter out deleted batches at database level for performance
+    return await db.executeSelect(clientName, 'GET_ACTIVE_BATCHES', { where: { isDeleted: false } });
+};
+
+const attachStudentDetails = async (clientName, batches = []) => {
+    if (!Array.isArray(batches) || batches.length === 0) {
+        return [];
+    }
+
+    const studentIds = [...new Set(
+        batches
+            .flatMap(batch => (Array.isArray(batch.students) ? batch.students : []))
+            .map(id => String(id))
+            .filter(Boolean)
+    )];
+
+    if (studentIds.length === 0) {
+        return batches.map(batch => ({ ...batch, studentDetails: [] }));
+    }
+
+    const users = await db.executeSelect(clientName, 'GET_ALL_USERS', {
+        where: { isDeleted: false, role: 'student' },
+        limit: 10000
+    });
+
+    const userMap = new Map(
+        (users || [])
+            .filter(user => studentIds.includes(String(user.id || user._id || '')))
+            .map(user => [
+                String(user.id || user._id),
+                {
+                    id: user.id || user._id,
+                    name: user.name || '',
+                    email: user.email || '',
+                    phone: user.phone || '',
+                    role: user.role || '',
+                    isDeleted: Boolean(user.isDeleted),
+                    enrolledBatches: Array.isArray(user.enrolledBatches) ? user.enrolledBatches : []
+                }
+            ])
+    );
+
+    return batches.map(batch => {
+        const batchStudentIds = Array.isArray(batch.students) ? batch.students : [];
+        const studentDetails = batchStudentIds
+            .map(id => userMap.get(String(id)))
+            .filter(Boolean);
+
+        return {
+            ...batch,
+            studentDetails
+        };
+    });
+};
+
+const getBatchesByCourseId = async (clientName, courseId) => {
+    if (!courseId) return [];
+
+    // Filter both courseId and isDeleted at database level for performance
+    const batches = await db.executeSelect(clientName, 'GET_ACTIVE_BATCHES', {
+        where: { courseId, isDeleted: false }
+    });
+
+    return await attachStudentDetails(clientName, batches || []);
 };
 
 const createBatch = async (clientName, batchData) => {
@@ -61,6 +123,8 @@ module.exports = {
     createBatch, 
     getActiveBatches, 
     getActiveBatchesBylist,
+    getBatchesByCourseId,
     getActiveBatchCount ,
-    softDeleteBatch
+    softDeleteBatch,
+    attachStudentDetails
 };

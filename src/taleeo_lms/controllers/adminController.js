@@ -23,6 +23,7 @@ const getBatches = async (req, res) => {
 const createNewBatch = async (req, res) => {
     try {
         const batch = await batchService.createBatch(req.clientName, req.body); // 🌟
+
         res.status(201).json({ message: "Batch created successfully", batch });
     } catch (error) {
         res.status(400).json({ message: "Error creating batch" });
@@ -37,6 +38,16 @@ const getDocuments = async (req, res) => {
 const postDocument = async (req, res) => {
     const doc = await contentService.uploadDocument(req.clientName, req.body); // 🌟
     res.status(201).json(doc);
+};
+
+const deleteDocument = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await contentService.deleteDocument(req.clientName, id);
+        res.status(200).json({ message: 'Document deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to delete document', error: error.message });
+    }
 };
 /**
  * Force-resets a student's password from the admin panel.
@@ -88,6 +99,16 @@ const getRecordings = async (req, res) => {
 const postRecording = async (req, res) => {
     const rec = await contentService.addRecording(req.clientName, req.body); // 🌟
     res.status(201).json(rec);
+};
+
+const deleteRecording = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await contentService.deleteRecording(req.clientName, id);
+        res.status(200).json({ message: 'Recording deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to delete recording', error: error.message });
+    }
 };
 
 const updateAttendance = async (req, res) => {
@@ -342,6 +363,15 @@ const deleteBatch = async (req, res) => {
         };
 
         await db.executeWrite(req.clientName, 'batches', data, 'updateOne');
+        await db.executeWrite(
+            req.clientName,
+            'courses',
+            {
+                filter: { batches: id },
+                updateData: { $pull: { batches: id } }
+            },
+            'updateMany'
+        );
         res.status(200).json({ message: "Batch deactivated" });
     } catch (error) {
         res.status(500).json({ message: "Delete failed", error: error.message });
@@ -608,6 +638,17 @@ const createModule = async (req, res) => {
         };
         // Use your common db logic for insertion
         await db.executeWrite(req.clientName, 'modules', payload, 'insertOne');
+        // i have course id payload.courseId and module id payload.id
+        // Now, we need to link this module to the course by updating the course document
+        await db.executeWrite(
+            req.clientName,
+            'courses',
+            {
+                filter: { id: payload.courseId },
+                updateData: { $addToSet: { modules: payload.id } } // Add module ID to course's modules array
+            },
+            'updateOne'
+        );  
         res.status(201).json({ message: "Module created successfully", id: payload.id });
     } catch (error) {
         res.status(500).json({ message: "Failed to create module", error: error.message });
@@ -637,23 +678,57 @@ const deleteModule = async (req, res) => {
         const updateData = { $set: { isDeleted: true } };
         
         await db.executeWrite(req.clientName, 'modules', { filter, updateData }, 'updateOne');
+ await db.executeWrite(
+            req.clientName,
+            'courses',
+            {
+                filter: { modules: id },
+                updateData: { $pull: { modules: id } }
+            },
+            'updateMany'
+        );
         res.status(200).json({ message: "Module deleted" });
     } catch (error) {
         res.status(500).json({ message: "Delete failed" });
     }
 };
 // controllers/adminController.js
+// 🌟 Enhanced: Update batch with bidirectional course linkage
 const updateBatch = async (req, res) => {
     try {
-        const { id } = req.params;
-        const data = {
-            filter: { id: id },
-            updateData: { $set: req.body } // Updates only the fields sent
+        const batchId = req.params.id;
+        const { courseId, ...otherUpdates } = req.body;
+        
+        // Prepare batch update data
+        const batchUpdateData = courseId 
+            ? { ...otherUpdates, courseId } 
+            : otherUpdates;
+        
+        // 1. Update the batch document with all fields including courseId
+        const batchUpdate = {
+            filter: { id: batchId },
+            updateData: { $set: batchUpdateData }
         };
-
-        await db.executeWrite(req.clientName, 'batches', data, 'updateOne');
-        res.status(200).json({ message: "Batch updated successfully" });
+        await db.executeWrite(req.clientName, 'batches', batchUpdate, 'updateOne');
+        
+        // 2. If courseId is provided, add this batch to the course's batches array (bidirectional link)
+        if (courseId) {
+            const courseUpdate = {
+                filter: { id: courseId },
+                updateData: { $addToSet: { batches: batchId } } // Add if not already present
+            };
+            await db.executeWrite(req.clientName, 'courses', courseUpdate, 'updateOne');
+            console.log(`✅ Batch "${batchId}" linked to Course "${courseId}"`);
+        }
+        
+        res.status(200).json({ 
+            message: "Batch updated successfully",
+            batchId: batchId,
+            courseId: courseId,
+            timestamp: Date.now()
+        });
     } catch (error) {
+        console.error('Update batch error:', error);
         res.status(500).json({ message: "Update failed", error: error.message });
     }
 };
@@ -779,8 +854,8 @@ module.exports = {
     createModule, updateModule, deleteModule,
     getBatches, createNewBatch, 
     updateBatch,
-    getDocuments, postDocument, 
-    getRecordings, postRecording,
+    getDocuments, postDocument, deleteDocument,
+    getRecordings, postRecording, deleteRecording,
     updateAttendance, getDashboardSummary,
     getStudents, createStudent, createAdmin,
     deleteCourse, getStudentDashboardSummary,

@@ -357,8 +357,15 @@ async function searchCoursesWithFilters(connectionName, searchTerm, limit = 20) 
         {
             $lookup: {
                 from: "batches",
-                localField: "id",
-                foreignField: "courseId",
+                let: { course_id: "$id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: { $eq: ["$courseId", "$$course_id"] },
+                            isDeleted: { $ne: true }
+                        }
+                    }
+                ],
                 as: "batches"
             }
         },

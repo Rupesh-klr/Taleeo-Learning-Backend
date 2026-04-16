@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
+const dropdownController = require('../controllers/dropdownController');
 
 // Batches
 router.get('/batches', adminController.getBatches);
@@ -9,13 +10,17 @@ router.post('/batches', adminController.createNewBatch);
 // Documents
 router.get('/documents', adminController.getDocuments);
 router.post('/documents', adminController.postDocument);
+router.delete('/documents/:id', adminController.deleteDocument);
 
 // Recordings
 router.get('/recordings', adminController.getRecordings);
 router.post('/recordings', adminController.postRecording);
+router.delete('/recordings/:id', adminController.deleteRecording);
 
 // Attendance
 router.post('/attendance', adminController.updateAttendance);
+router.get('/dropdowns', dropdownController.getDropdowns);
+router.get('/dropdowns/:item', dropdownController.getDropdowns);
 // Add this route
 router.get('/students', adminController.getStudents);
 router.post('/students', adminController.createStudent);

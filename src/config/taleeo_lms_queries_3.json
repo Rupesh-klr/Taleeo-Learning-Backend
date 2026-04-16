@@ -4,6 +4,14 @@
     "where": { "role": "student" },
     "orderBy": "createdAt DESC"
   },
+  "GET_ALL_USERS": {
+    "table": "users",
+    "orderBy": "createdAt DESC"
+  },
+  "GET_ALL_MODULES": {
+    "table": "modules",
+    "orderBy": "createdAt DESC"
+  },
   "GET_USER_BY_EMAIL": {
     "table": "users"
   },

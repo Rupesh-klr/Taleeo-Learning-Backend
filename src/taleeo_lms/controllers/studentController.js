@@ -235,7 +235,6 @@ const getStudentDashboardSummary = async (req, res, next) => {
 
         // 🌟 FORMATTING DATA to match your JSON Model
         const batches = enrolledBatchesRaw.map(b => (
-            console.log("Batch raw data:", b) ||
             {
             batchId: b.id || b._id,
             title: b.name,

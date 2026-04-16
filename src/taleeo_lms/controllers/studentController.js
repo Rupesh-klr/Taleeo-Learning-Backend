@@ -234,25 +234,27 @@ const getStudentDashboardSummary = async (req, res, next) => {
         ];
 
         // 🌟 FORMATTING DATA to match your JSON Model
-        const batches = enrolledBatchesRaw.map(b => ({
+        const batches = enrolledBatchesRaw.map(b => (
+            console.log("Batch raw data:", b) ||
+            {
             batchId: b.id || b._id,
             title: b.name,
             timing: b.timing,
             days: b.days || "Mon-Fri", // Fallback if not in DB
             type: b.type || "Live Session",
             zoomConfig: {
-                meetingId: b.zoomId || "N/A",
-                passcode: b.zoomPass || "N/A",
-                link: b.zoomLink || "#"
+                meetingId: b.zoomDetails.id || "N/A",
+                passcode: b.zoomDetails.pass || "N/A",
+                link: b.zoomDetails.link || "#"
             },
             studentCount: b.studentCount || 0,
             status: b.status || "Active"
         }));
 
-        console.log(user);
-        console.log(enrolledBatchesRaw);
+        // console.log(user);
+        // console.log(enrolledBatchesRaw);
         let courseIds = enrolledBatchesRaw.map(b => b.courseId).filter(Boolean);
-        console.log(courseIds);
+        // console.log(courseIds);
 
         const coursesCacheKey = dashboardCacheKey(client, 'courses-with-modules', courseIds);
         let coursesWithModules = getDashboardCache(coursesCacheKey);
@@ -262,7 +264,7 @@ const getStudentDashboardSummary = async (req, res, next) => {
             setDashboardCache(coursesCacheKey, coursesWithModules);
         }
 
-        console.log("Courses with Modules:", coursesWithModules[0]?.modules || []);
+        // console.log("Courses with Modules:", coursesWithModules[0]?.modules || []);
         const modules = coursesWithModules.flatMap(course => {
             const courseModules = Array.isArray(course.modules) ? course.modules : [];
             return courseModules.map((module, index) => ({
@@ -280,7 +282,7 @@ const getStudentDashboardSummary = async (req, res, next) => {
             if (byCourse !== 0) return byCourse;
             return (a.order || 0) - (b.order || 0);
         });
-        console.log(modules);
+        // console.log(modules);
 
         const recentRecordings = [{},{}].map(r => ({
             id: r.id || r._id,
@@ -306,6 +308,8 @@ const getStudentDashboardSummary = async (req, res, next) => {
             quickActions,
             recentRecsRaw
         };
+        // console.log(enrolledBatchesRaw)
+        // console.log(batches)
 
         return res.status(200).json(responseBody);
 

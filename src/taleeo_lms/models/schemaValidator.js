@@ -55,9 +55,9 @@ const validateSchema = (schemaName, data) => {
 
         content: {
             // Content can be PDFs, assignments, or text inside a module
-            required: ['moduleId', 'title', 'type', 'url'],
+            required: ['title', 'type', 'url'],
             validate: (d) => {
-                if (!['pdf', 'video', 'link', 'text'].includes(d.type)) throw new Error("Content type must be pdf, video, link, or text");
+                if (!['pdf', 'video', 'link', 'text', 'doc', 'image'].includes(d.type)) throw new Error("Content type must be pdf, video, link, text, doc, or image");
             }
         },
 
